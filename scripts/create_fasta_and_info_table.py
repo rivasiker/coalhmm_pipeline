@@ -1,3 +1,10 @@
+# This script is used for saving the individual fasta files and the info table for a certain 
+# coalHMM run. The start and end coordinated for the maf slicing are supplied by the first
+# two areguments respectively, and the run number is specified as a third argument. All
+# in all, this script can be run using:
+#       
+#       python create_fasta_and_info_table.py start_coord end_coord run_number
+
 from Bio import AlignIO
 from Bio.AlignIO import MafIO
 import pandas as pd

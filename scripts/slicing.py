@@ -1,4 +1,5 @@
-
+# This script contains the function for slicing the filtered 
+# maf file according to a window size. 
 
 def start_end(alignment, target_seqname, window_size):
 	"""
