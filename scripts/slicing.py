@@ -7,7 +7,7 @@ def start_end(alignment, target_seqname, window_size):
 	alignment from a generator object given a target
 	species and chromosome in the form of species.chromosome.
 	The slicing is done in base of the user-specified window 
-	size.
+	size. It also returns the number of sequences per window. 
 	"""
 	# Create empty list of start coordinates
 	start = []
@@ -29,6 +29,7 @@ def start_end(alignment, target_seqname, window_size):
 	st = start[0]
 	# Save first size
 	sz = size[0]
+	j = 0
 	# For each index
 	for i in range(1, len(start)):
 		# If the index is not the last one
@@ -40,12 +41,12 @@ def start_end(alignment, target_seqname, window_size):
 			# If the size is larger than the window size
 			else:
 				# Append start and end coordinates
-				coord_lst.append((st, start[i]+size[i]-1))
+				coord_lst.append((st, start[i]+size[i]-1, i-j))
 				# Update the accumulated size and start position
 				st = start[i+1]
 				sz = size[i]
 		else:
-			coord_lst.append((st, start[i]+size[i]-1))
+			coord_lst.append((st, start[i]+size[i]-1, i-j))
 	return(coord_lst)
 
 
