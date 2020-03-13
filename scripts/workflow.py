@@ -21,7 +21,7 @@ from gwf import Workflow
 ##	Required files:
 ##		'../tmp/filtered.maf':	a filtered maf file as outputted from maffilter.
 
-from slicing import start_end
+from start_end import start_end
 
 # Load the alignment
 alignment = AlignIO.parse('../tmp/filtered.maf', 'maf')
