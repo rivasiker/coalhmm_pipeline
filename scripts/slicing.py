@@ -1,27 +1,71 @@
-from Bio import AlignIO
-from Bio.AlignIO import MafIO
-import os
-import pandas as pd
-import sys
-import getopt
-
-# Path to the input uncompressed maf file
-input_file = sys.argv[1]
-# Path to an existing output directory
-output_dir = sys.argv[2].strip('/')+'/'
-# Name of the output file 
-output_name = sys.argv[3]
-# Target sequence in the form of species.chromosome
-target_seqname = sys.argv[4]
-# Size of the window for slicing the maf file in bp
-window_size = sys.argv[5]
 
 
+def start_end(alignment, target_seqname, window_size):
+	"""
+	This function returns a list containing the start
+	and end coordinates of a sliced multiple sequence 
+	alignment from a generator object given a target
+	species and chromosome in the form of species.chromosome.
+	The slicing is done in base of the user-specified window 
+	size.
+	"""
+	# Create empty list of start coordinates
+	start = []
+	# Create empty list of sizes
+	size = []
+	# For each alignment in the file
+	for ali in alignment:
+		# For each record in the alignment
+		for record in ali:
+			# Find the reference sequence
+			if record.name == target_seqname:
+				# Record the start position
+				start.append(record.annotations['start'])
+				# Record the size
+				size.append(record.annotations['size'])
+	# Create empty list of coordinates
+	coord_lst = []
+	# Save first start coordinate
+	st = start[0]
+	# Save first size
+	sz = size[0]
+	# For each index
+	for i in range(1, len(start)):
+		# If the index is not the last one
+		if i < (len(start)-1):
+			# If the size is smaller than the window size
+			if sz+size[i] < window_size:
+				# Update the accumulated size
+				sz += size[i]
+			# If the size is larger than the window size
+			else:
+				# Append start and end coordinates
+				coord_lst.append((st, start[i]+size[i]-1))
+				# Update the accumulated size and start position
+				st = start[i+1]
+				sz = size[i]
+		else:
+			coord_lst.append((st, start[i]+size[i]-1))
+	return(coord_lst)
 
-# Parse the maf alignment from the first argument of the script
-alignment = AlignIO.parse(input_file, 'maf')
-# Create or load a mafindex
-idx = MafIO.MafIndex(output_dir+output_name+".mafindex", input_file, target_seqname)
 
 
-len(alignment)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
