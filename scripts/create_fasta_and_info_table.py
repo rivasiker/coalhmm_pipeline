@@ -17,7 +17,7 @@ target_seqname = [2]
 # Load mafindex
 idx = MafIO.MafIndex('../tmp/filtered.mafindex', '../tmp/filtered.maf', target_seqname)
 # Parse the alignment
-results = idx.search(sys.argv[2], sys.argv[3])
+results = idx.search(sys.argv[3], sys.argv[4])
 
 
 # Create an empty dataframe

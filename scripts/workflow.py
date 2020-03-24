@@ -41,9 +41,9 @@ for run in range(len(slice_lst)):
 	outputs = ['../tmp/run_{}/fasta_{}.fa'.format(run, j) for j in range(slice_lst[2])]
 	outputs.append('../tmp/info_tables/run_{}.csv'.format(run))
 	# Save individual fasta files and info df
-	gwf.target('run_{}'.format(i), inputs=inputs, outputs=outputs) << """
-	python create_fasta_and_info_table.py {} {} {}
-	""".format(run, slice_lst[run][0], slice_lst[run][1])
+	gwf.target('run_{}'.format(run), inputs=inputs, outputs=outputs) << """
+	python create_fasta_and_info_table.py {} {} {} {}
+	""".format(run, target_seqname, slice_lst[run][0], slice_lst[run][1])
 	# Run coalHMM
 
 
