@@ -16,7 +16,7 @@ if not os.path.isdir('../tmp/'):
 
 ##	Required parameters: strings of : big_maf_file, species1, species2, species3, species4
 
-big_maf_file = '../../'
+big_maf_file = '../chr3_subset/subset_chr3.maf.gz'
 species1 = 'Homo_sapiens'
 species2 = 'Pan_troglodytes'
 species3 = 'Gorilla_gorilla_gorilla'
@@ -101,7 +101,11 @@ for run in range(len(slice_lst)):
 	outputs = ['../tmp/run_{}/fasta_{}.fa'.format(run, j) for j in range(slice_lst[2])]
 	outputs.append('../tmp/info_tables/run_{}.csv'.format(run))
 	# Save individual fasta files and info df
-	gwf.target('run_{}'.format(run), inputs=inputs, outputs=outputs) << """
+	gwf.target('run_{}'.format(run), 
+			   inputs=inputs, outputs=outputs,
+			   cores=4,
+			   memory='4g',
+			   walltime= '02:00:00') << """
 	python create_fasta_and_info_table.py {} {} {} {}
 	""".format(run, target_seqname, slice_lst[run][0], slice_lst[run][1])
 	
