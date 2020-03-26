@@ -8,6 +8,22 @@ from gwf import Workflow
 
 ###################### FILTERING OF THE MAF FILE ######################
 
+## 	Required files: Maffilter stand alone program required (can't be installed via conda)
+
+##	Required parameters: strings of : big_maf_file, species1, species2, species3, sepcies4
+
+gwf.target('Set_tmp_dir', inputs=[], outputs=[]) << """
+mkdir ../tmp
+"""
+
+gwf.target('Mafffilter_control_file', inputs=[], outputs=['../tmp/control_file']) << """
+./maffilter_control_file_generation.sh {} {} {} {} {}
+""".format(big_maf_file, species1, species2, species3, sepcies4)
+
+gwf.target('Maffilter', inputs=['../tmp/control_file'], outputs=['../tmp/filtered.maf', '../tmp/maf_filtering.log']) << """
+./maffilter param=control_file
+"""
+
 
 ###################### SLICING OF THE FILTERED MAF FILE ######################
 
@@ -44,11 +60,14 @@ for run in range(len(slice_lst)):
 	gwf.target('run_{}'.format(run), inputs=inputs, outputs=outputs) << """
 	python create_fasta_and_info_table.py {} {} {} {}
 	""".format(run, target_seqname, slice_lst[run][0], slice_lst[run][1])
-	# Run coalHMM
+	
+#################### RUNNING coalHMM ######################
 
+## 	Required file : coalHMM stnd alone executable
 
-
-
+gwf.target('coalHMM_{}'.format(run), inputs=, outputs=) << """
+./coalhmm param=
+"""
 
 gwf = Workflow()
 
