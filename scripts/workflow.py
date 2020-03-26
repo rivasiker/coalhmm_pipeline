@@ -5,22 +5,39 @@ import pandas as pd
 import sys
 from gwf import Workflow
 
+gwf = Workflow()
+
+if not os.path.isdir('../tmp/'):
+	os.mkdir('../tmp/')
 
 ###################### FILTERING OF THE MAF FILE ######################
 
 ## 	Required files: Maffilter stand alone program required (can't be installed via conda)
 
-##	Required parameters: strings of : big_maf_file, species1, species2, species3, sepcies4
+##	Required parameters: strings of : big_maf_file, species1, species2, species3, species4
 
-gwf.target('Set_tmp_dir', inputs=[], outputs=[]) << """
-mkdir ../tmp
-"""
+big_maf_file = '../../'
+species1 = 'Homo_sapiens'
+species2 = 'Pan_troglodytes'
+species3 = 'Gorilla_gorilla_gorilla'
+species4 = 'Pongo_abelii'
 
-gwf.target('Mafffilter_control_file', inputs=[], outputs=['../tmp/control_file']) << """
+gwf.target('Mafffilter_control_file', 
+           inputs=[], 
+		   outputs=['../tmp/control_file'],
+		   cores=1,
+    	   memory='2g',
+		   walltime= '00:10:00') << """
 ./maffilter_control_file_generation.sh {} {} {} {} {}
-""".format(big_maf_file, species1, species2, species3, sepcies4)
+""".format(big_maf_file, species1, species2, species3, species4)
 
-gwf.target('Maffilter', inputs=['../tmp/control_file'], outputs=['../tmp/filtered.maf', '../tmp/maf_filtering.log']) << """
+
+gwf.target('Maffilter', 
+		   inputs=['../tmp/control_file'], 
+		   outputs=['../tmp/filtered.maf', '../tmp/maf_filtering.log'],
+		   cores=1,
+    	   memory='10g',
+		   walltime= '02:00:00') << """
 ./maffilter param=control_file
 """
 
@@ -39,6 +56,9 @@ gwf.target('Maffilter', inputs=['../tmp/control_file'], outputs=['../tmp/filtere
 
 from start_end import start_end
 import pickle
+
+target_seqname = 'Homo_sapiens'
+window_size = 1000000
 
 if not os.path.exists('../tmp/slice_dct.txt'):
 	# Load the alignment
@@ -85,19 +105,19 @@ for run in range(len(slice_lst)):
 	python create_fasta_and_info_table.py {} {} {} {}
 	""".format(run, target_seqname, slice_lst[run][0], slice_lst[run][1])
 	
-#################### RUNNING coalHMM ######################
+# #################### RUNNING coalHMM ######################
 
-## 	Required file : coalHMM stnd alone executable
+# ## 	Required file : coalHMM stnd alone executable
 
-gwf.target('coalHMM_{}'.format(run), inputs=, outputs=) << """
-./coalhmm param=
-"""
+# gwf.target('coalHMM_{}'.format(run), inputs=, outputs=) << """
+# ./coalhmm param=
+# """
 
-gwf = Workflow()
+# gwf = Workflow()
 
-gwf.target('MyTarget', inputs=[], outputs=[]) << """
-echo hello world
-"""
+# gwf.target('MyTarget', inputs=[], outputs=[]) << """
+# echo hello world
+# """
 
 
 
