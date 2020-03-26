@@ -22,16 +22,40 @@ from gwf import Workflow
 ##		'../tmp/filtered.maf':	a filtered maf file as outputted from maffilter.
 
 from start_end import start_end
+import pickle
 
-# Load the alignment
-alignment = AlignIO.parse('../tmp/filtered.maf', 'maf')
-# Save slice list
-slice_lst = start_end(alignment, target_seqname, window_size)
+if not os.path.exists('../tmp/slice_dct.txt'):
+	# Load the alignment
+	alignment = AlignIO.parse('../tmp/filtered.maf', 'maf')
+	# Save slice list
+	slice_lst = start_end(alignment, target_seqname, window_size)
+	# Save slice list as temporary file
+	pickle.dump(slice_lst, open('../tmp/slice_dct.txt', 'wb'))
+else:
+	# Load slice dictionary
+	slice_lst = pickle.load(open('../tmp/slice_dct.txt', 'rb'))
+
+
+###################### CREATE INFO TABLES AND RUN COALHMM ######################
+
+
+##	Required parameters:
+##		target_seqname: string with reference sequence and chromosome in the
+##						form of 'species.chromosome'.
+##
+##	Required files:
+##		'../tmp/filtered.maf':	a filtered maf file as outputted from maffilter.
+##      '../tmp/slice_dct.txt': a text file containing the dictionary of slices.
+
+
+
+
+# It needs to be created above, in the first target
+########## os.mkdir('../tmp/info_tables')
+
+
 # Create maf indexing
 idx = MafIO.MafIndex('../tmp/filtered.mafindex', '../tmp/filtered.maf', target_seqname)
-
-os.mkdir('../tmp/info_tables')
-
 # For each slice of the maffilter
 for run in range(len(slice_lst)):
 	# Create temporary directory with coalHMM run index

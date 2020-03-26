@@ -1,5 +1,9 @@
+import sys
+from Bio import AlignIO
+
 # This script contains the function for slicing the filtered 
-# maf file according to a window size. 
+# maf file according to a window size. It saves the slicing
+# information as a dictionary into a text file.
 
 def start_end(alignment, target_seqname, window_size):
 	"""
@@ -49,9 +53,6 @@ def start_end(alignment, target_seqname, window_size):
 		else:
 			coord_lst.append((st, start[i]+size[i]-1, i-j))
 	return(coord_lst)
-
-
-
 
 
 

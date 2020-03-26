@@ -13,7 +13,7 @@ import sys
 
 # Save the run index
 run = sys.argv[1]
-target_seqname = [2]
+target_seqname = sys.argv[2]
 # Load mafindex
 idx = MafIO.MafIndex('../tmp/filtered.mafindex', '../tmp/filtered.maf', target_seqname)
 # Parse the alignment
