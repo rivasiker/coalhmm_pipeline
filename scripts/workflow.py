@@ -60,13 +60,15 @@ import pickle
 target_seqname = 'Homo_sapiens'
 window_size = 1000000
 
-if not os.path.exists('../tmp/slice_dct.txt'):
+if (not os.path.exists('../tmp/slice_dct.txt')) and (os.path.exists('../tmp/filtered.maf')):
 	# Load the alignment
 	alignment = AlignIO.parse('../tmp/filtered.maf', 'maf')
 	# Save slice list
 	slice_lst = start_end(alignment, target_seqname, window_size)
 	# Save slice list as temporary file
 	pickle.dump(slice_lst, open('../tmp/slice_dct.txt', 'wb'))
+elif not os.path.exists('../tmp/filtered.maf'):
+	slice_lst = []
 else:
 	# Load slice dictionary
 	slice_lst = pickle.load(open('../tmp/slice_dct.txt', 'rb'))
