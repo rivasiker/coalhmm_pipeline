@@ -38,7 +38,7 @@ gwf.target('Maffilter',
 		   cores=1,
     	   memory='10g',
 		   walltime= '02:00:00') << """
-maffilter param=../tmp/control_file
+./maffilter param=../tmp/control_file
 """
 
 
