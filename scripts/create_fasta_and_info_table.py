@@ -22,33 +22,32 @@ results = idx.search([int(sys.argv[3])], [int(sys.argv[4])])
 
 # Create an empty dataframe
 df = pd.DataFrame(columns = ['file', 'species', 'chr', 'start', 'gaps'])
-# For each of the alignments
-for i, align in enumerate(results):
-    # Create empty dictionary
-    dct = {'species':[], 'chr':[], 'start':[],'gaps':[]}
-    # For each of the records
-    for record in align:
-        record.name = record.name.split('.')[0]
-        # Retrieve species
-        dct['species'].append(record.name)
-        # Retrieve chromosome/contig
-        dct['chr'].append('.'.join(record.name.split('.')[1:]))
-        # Retrieve start coordinate
-        dct['start'].append(record.annotations['start'])
-        # Retrieve gaps encoded in a binary format
-        dct['gaps'].append(''.join([str(0) if n=='-' else str(1) for n in record.seq]))
-    # Save individual fasta file
-    AlignIO.write(align, '../tmp/inputs/run_{}/fasta_{}.fa'.format(run, i), "fasta")
-    # Convert dictionary to data frame
-    file_df = pd.DataFrame.from_dict(dct)
-    # Insert column mapping to the file
-    file_df.insert(0, 'file', i, True)
-    # Append rows to overall data frame
-    df = df.append(file_df)
-
 with open('../tmp/fasta_names/run_{}.txt'.format(run), 'w') as f:
-    for i in range(len(df.index)):
+    # For each of the alignments
+    for i, align in enumerate(results):
         f.write('fasta_{}.fa\n'.format(i))
+        # Create empty dictionary
+        dct = {'species':[], 'chr':[], 'start':[],'gaps':[]}
+        # For each of the records
+        for record in align:
+            record.id = record.name.split('.')[0]
+            record.description = record.name.split('.')[0]
+            # Retrieve species
+            dct['species'].append(record.name.split('.')[0])
+            # Retrieve chromosome/contig
+            dct['chr'].append('.'.join(record.name.split('.')[1:]))
+            # Retrieve start coordinate
+            dct['start'].append(record.annotations['start'])
+            # Retrieve gaps encoded in a binary format
+            dct['gaps'].append(''.join([str(0) if n=='-' else str(1) for n in record.seq]))
+        # Save individual fasta file
+        AlignIO.write(align, '../tmp/inputs/run_{}/fasta_{}.fa'.format(run, i), "fasta")
+        # Convert dictionary to data frame
+        file_df = pd.DataFrame.from_dict(dct)
+        # Insert column mapping to the file
+        file_df.insert(0, 'file', i, True)
+        # Append rows to overall data frame
+        df = df.append(file_df)
 
 # Save the csv file
 df.to_csv('../tmp/info_tables/run_{}.csv'.format(run), index=False)

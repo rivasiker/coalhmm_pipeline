@@ -140,23 +140,28 @@ if os.path.isfile('../tmp/filtered.maf'):
 
 
 			# Define format of output paths
-			out = '../tmp/outputs/run_{}'.format(run)
+			out = '../tmp/outputs/run_{}/'.format(run)
+			results = ['../tmp/outputs/run_{}/estimates'.format(run),
+			 		   '../tmp/outputs/run_{}/posterior_states'.format(run),
+			           '../tmp/outputs/run_{}/posteriors'.format(run), 
+					   '../tmp/outputs/run_{}/hidden_states'.format(run),
+					   '../tmp/outputs/run_{}/divergences'.format(run)]
 			# Run coalhmm
 			gwf.target('coalhmm_run_{}'.format(run), 
-					   input=outputs, 
-					   output=[],
+					   inputs=outputs, 
+					   outputs=results,
 					   cores=4, 
 					   memory='4g', 
-					   walltime= '20:00:00') << """
+					   walltime= '01:00:00') << """
 			./coalhmm --noninteractive=yes param=../tmp/params.file species1={} species2={} species3={} outgroup={} \
-				input.sequence.multiparts=yes input.sequence.format=Fasta input.sequence.list={} input.sequence.multiparts.prefix={} \
-				input.sequence.multiparts.reset=yes optimization.profiler={}.profiler optimization.message_handler={}.messages \
-				output.posterior.states={}.posterior_states output.hidden_states={}.hidden_states output.hidden_states.divergences={}.divergences \
-				output.posterior.values={}.posteriors output.estimated.parameters={}.params output.userfriendly.parameters={}.estimates \
-				input.sequence.sites_to_use=all input.sequence.max_gap_allowed=50%
+			input.sequence.multiparts=yes input.sequence.format=Fasta input.sequence.list={} input.sequence.multiparts.prefix={} \
+			input.sequence.multiparts.reset=yes optimization.profiler={}profiler optimization.message_handler={}messages \
+			output.posterior.states={}posterior_states output.hidden_states={}hidden_states output.hidden_states.divergences={}divergences \
+			output.posterior.values={}posteriors output.estimated.parameters={}params output.userfriendly.parameters={}estimates \
+			input.sequence.sites_to_use=all input.sequence.max_gap_allowed=50%
 			""".format(species1, species2, species3, species4, 
 			           '../tmp/fasta_names/run_{}.txt'.format(run), 
-					   '../tmp/inputs/run_{}'.format(run), 
+					   '../tmp/inputs/run_{}/'.format(run), 
 					   out, out, out, out, out, out, out, out)
 
 
