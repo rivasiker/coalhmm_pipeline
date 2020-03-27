@@ -22,7 +22,7 @@ species2 = 'Pan_troglodytes'
 species3 = 'Gorilla_gorilla_gorilla'
 species4 = 'Pongo_abelii'
 
-gwf.target('Mafffilter_control_file', 
+gwf.target('Maffilter_control_file', 
            inputs=[], 
 		   outputs=['../tmp/control_file', '../tmp/params.file'],
 		   cores=1,
