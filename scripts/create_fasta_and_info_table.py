@@ -27,7 +27,7 @@ for i, align in enumerate(results):
     # Create empty dictionary
     dct = {'species':[], 'chr':[], 'start':[],'gaps':[]}
     # Save individual fasta file
-    AlignIO.write(align, '../tmp/run_{}/fasta_{}.fa'.format(run, i), "fasta")
+    AlignIO.write(align, '../tmp/inputs/run_{}/fasta_{}.fa'.format(run, i), "fasta")
     # For each of the records
     for record in align:
         # Retrieve species
@@ -45,8 +45,13 @@ for i, align in enumerate(results):
     # Append rows to overall data frame
     df = df.append(file_df)
 
+with open('../tmp/fasta_names/run_{}.txt'.format(run), 'w') as f:
+    for i in range(len(df.index)):
+        f.write('fasta_{}.fa\n'.format(i))
+
 # Save the csv file
 df.to_csv('../tmp/info_tables/run_{}.csv'.format(run), index=False)
+
 
 
 

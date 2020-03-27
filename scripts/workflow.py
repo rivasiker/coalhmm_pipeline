@@ -24,12 +24,13 @@ species4 = 'Pongo_abelii'
 
 gwf.target('Mafffilter_control_file', 
            inputs=[], 
-		   outputs=['../tmp/control_file'],
+		   outputs=['../tmp/control_file', '../tmp/params.file'],
 		   cores=1,
     	   memory='2g',
 		   walltime= '00:10:00') << """
 ./maffilter_controlfile_generation.sh {} {} {} {} {}
-""".format(big_maf_file, species1, species2, species3, species4)
+./coalhmm_paramfile_generation.sh {} {} {} {}
+""".format(big_maf_file, species1, species2, species3, species4, species1, species2, species3, species4)
 
 
 gwf.target('Maffilter', 
@@ -40,15 +41,6 @@ gwf.target('Maffilter',
 		   walltime= '02:00:00') << """
 ./maffilter param=../tmp/control_file
 """
-
-gwf.target('coalhmm_params', 
-		   inputs=[], 
-		   outputs=['../tmp/params.file'],
-		   cores=1,
-    	   memory='10g',
-		   walltime= '02:00:00') << """
-./coalhmm_paramfile_generation.sh {} {} {} {}
-""".format(species1, species2, species3, species4)
 
 ###################### SLICING OF THE FILTERED MAF FILE ######################
 
@@ -81,9 +73,6 @@ if not os.path.isfile('../tmp/slice_dct.txt'):
 		slice_lst = start_end(alignment, target_seqname, window_size)
 		# Save slice list as temporary file
 		pickle.dump(slice_lst, open('../tmp/slice_dct.txt', 'wb'))
-
-		# Create/load maf indexing
-		idx = MafIO.MafIndex('../tmp/filtered.mafindex', '../tmp/filtered.maf', target_seqname)
 	
 	# If the filtered maf does not exist
 	else:
@@ -112,33 +101,63 @@ else:
 
 
 if not os.path.isdir('../tmp/info_tables'):
-	# Create temporary directory with coalHMM run index
 	os.mkdir('../tmp/info_tables')
+if not os.path.isdir('../tmp/fasta_names'):
+	os.mkdir('../tmp/fasta_names')
+if not os.path.isdir('../tmp/inputs'):
+	os.mkdir('../tmp/inputs')
+if not os.path.isdir('../tmp/outputs'):
+	os.mkdir('../tmp/outputs')
 
 
 # If the filtered maf file exists, then run coalHMM
 if os.path.isfile('../tmp/filtered.maf'):
-	# For each slice of the maffilter
-	for run in range(len(slice_lst)):
-		if not os.path.isdir('../tmp/run_{}'.format(run)):
-			# Create temporary directory with coalHMM run index
-			os.mkdir('../tmp/run_{}'.format(run))
-		# Create input and output lists for the gwf run
-		inputs = ['../tmp/filtered.mafindex', '../tmp/filtered.maf']
-		outputs = ['../tmp/run_{}/fasta_{}.fa'.format(run, j) for j in range(slice_lst[run][2])]
-		outputs.append('../tmp/info_tables/run_{}.csv'.format(run))
-		# Save individual fasta files and info df
-		gwf.target('run_{}'.format(run), 
-				inputs=inputs, outputs=outputs,
-				cores=4,
-				memory='4g',
-				walltime= '01:00:00') << """
-		python create_fasta_and_info_table.py {} {} {} {}
-		""".format(run, target_seqname, slice_lst[run][0], slice_lst[run][1])
-	#run coalhmm
-	gwf.target('coalhmm_run_{}'.format(run), input=, output=cores=4, memory='4g', walltime= '02:00:00') << """
-	coalhmm --noninteractive=yes param=../tmp/params.file species1={} species2={} species3={} outgroup={} input.sequence.multiparts=yes input.sequence.format=Fasta input.sequence.list={} input.sequence.multiparts.prefix=#XXX?(A path to be added before all paths in the file list) input.sequence.multiparts.reset=yes optimization.profiler={}.profiler optimization.message_handler={}.messages output.posterior.states=none output.hidden_states={}.states output.hidden_states.divergences={}.divergences output.posterior.values={}.posteriors output.estimated.parameters={}.params output.userfriendly.parameters={}.estimates input.sequence.sites_to_use=all input.sequence.max_gap_allowed=50%
-""".format(species1, species2, species3, species4, INPUT_LIST, PATH??, BASENAME)
+	if os.path.isfile('../tmp/slice_dct.txt'): 
+		# For each slice of the maffilter
+		for run in range(len(slice_lst)):
+			
+			if not os.path.isdir('../tmp/inputs/run_{}'.format(run)):
+				# Create temporary directory with coalHMM run index
+				os.mkdir('../tmp/inputs/run_{}'.format(run))
+			if not os.path.isdir('../tmp/outputs/run_{}'.format(run)):
+				# Create temporary directory with coalHMM run index
+				os.mkdir('../tmp/outputs/run_{}'.format(run))
+
+
+			# Create input and output lists for the gwf run
+			inputs = ['../tmp/filtered.mafindex', '../tmp/filtered.maf']
+			outputs = ['../tmp/inputs/run_{}/fasta_{}.fa'.format(run, j) for j in range(slice_lst[run][2])]
+			outputs = outputs + ['../tmp/info_tables/run_{}.csv'.format(run), '../tmp/fasta_names/run_{}.txt'.format(run)]
+			# Save individual fasta files and info df
+			gwf.target('run_{}'.format(run), 
+					   inputs=inputs, 
+					   outputs=outputs,
+					   cores=4,
+					   memory='4g',
+					   walltime= '01:00:00') << """
+			python create_fasta_and_info_table.py {} {} {} {}
+			""".format(run, target_seqname, slice_lst[run][0], slice_lst[run][1])
+
+
+			# Define format of output paths
+			out = '../tmp/outputs/run_{}'.format(run)
+			# Run coalhmm
+			gwf.target('coalhmm_run_{}'.format(run), 
+					   input=outputs, 
+					   output=[],
+					   cores=4, 
+					   memory='4g', 
+					   walltime= '20:00:00') << """
+			./coalhmm --noninteractive=yes param=../tmp/params.file species1={} species2={} species3={} outgroup={} \
+				input.sequence.multiparts=yes input.sequence.format=Fasta input.sequence.list={} input.sequence.multiparts.prefix={} \
+				input.sequence.multiparts.reset=yes optimization.profiler={}.profiler optimization.message_handler={}.messages \
+				output.posterior.states={}.posterior_states output.hidden_states={}.hidden_states output.hidden_states.divergences={}.divergences \
+				output.posterior.values={}.posteriors output.estimated.parameters={}.params output.userfriendly.parameters={}.estimates \
+				input.sequence.sites_to_use=all input.sequence.max_gap_allowed=50%
+			""".format(species1, species2, species3, species4, 
+			           '../tmp/fasta_names/run_{}.txt'.format(run), 
+					   '../tmp/inputs/run_{}'.format(run), 
+					   out, out, out, out, out, out, out, out)
 
 
 
