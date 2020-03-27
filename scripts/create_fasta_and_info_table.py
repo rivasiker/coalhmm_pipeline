@@ -12,12 +12,12 @@ import sys
 
 
 # Save the run index
-run = sys.argv[1]
+run = int(sys.argv[1])
 target_seqname = sys.argv[2]
 # Load mafindex
 idx = MafIO.MafIndex('../tmp/filtered.mafindex', '../tmp/filtered.maf', target_seqname)
 # Parse the alignment
-results = idx.search(sys.argv[3], sys.argv[4])
+results = idx.search([int(sys.argv[3])], [int(sys.argv[4])])
 
 
 # Create an empty dataframe

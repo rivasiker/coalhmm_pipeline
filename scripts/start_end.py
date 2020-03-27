@@ -50,6 +50,7 @@ def start_end(alignment, target_seqname, window_size):
 				# Update the accumulated size and start position
 				st = start[i+1]
 				sz = size[i]
+				j = i+1
 		else:
 			coord_lst.append((st, start[i]+size[i]-1, i-j))
 	return(coord_lst)
