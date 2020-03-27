@@ -26,18 +26,19 @@ df = pd.DataFrame(columns = ['file', 'species', 'chr', 'start', 'gaps'])
 for i, align in enumerate(results):
     # Create empty dictionary
     dct = {'species':[], 'chr':[], 'start':[],'gaps':[]}
-    # Save individual fasta file
-    AlignIO.write(align, '../tmp/inputs/run_{}/fasta_{}.fa'.format(run, i), "fasta")
     # For each of the records
     for record in align:
+        record.name = record.name.split('.')[0]
         # Retrieve species
-        dct['species'].append(record.name.split('.')[0])
+        dct['species'].append(record.name)
         # Retrieve chromosome/contig
         dct['chr'].append('.'.join(record.name.split('.')[1:]))
         # Retrieve start coordinate
         dct['start'].append(record.annotations['start'])
         # Retrieve gaps encoded in a binary format
         dct['gaps'].append(''.join([str(0) if n=='-' else str(1) for n in record.seq]))
+    # Save individual fasta file
+    AlignIO.write(align, '../tmp/inputs/run_{}/fasta_{}.fa'.format(run, i), "fasta")
     # Convert dictionary to data frame
     file_df = pd.DataFrame.from_dict(dct)
     # Insert column mapping to the file
