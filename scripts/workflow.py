@@ -108,6 +108,8 @@ if not os.path.isdir('../tmp/inputs'):
 	os.mkdir('../tmp/inputs')
 if not os.path.isdir('../tmp/outputs'):
 	os.mkdir('../tmp/outputs')
+if not os.path.isdir('../tmp/results/'):
+	os.mkdir('../tmp/results/')
 
 
 # If the filtered maf file exists, then run coalHMM
@@ -164,7 +166,36 @@ if os.path.isfile('../tmp/filtered.maf'):
 					   '../tmp/inputs/run_{}/'.format(run), 
 					   out, out, out, out, out, out, out, out)
 
+			# Collect results from each of the runs and combine them with the coordinates
+			gwf.target('collect_run_{}'.format(run), 
+					   inputs=['../tmp/info_tables/run_{}.csv'.format(run), '../tmp/outputs/run_{}/posteriors'.format(run)], 
+					   outputs=['../tmp/results/run_{}.csv'.format(run)],
+					   cores=1,
+					   memory='4g',
+					   walltime= '01:00:00') << """
+			python collect_posteriors.py {}
+			""".format(run)
 
+
+		gwf.target('final_table', 
+					inputs=['../tmp/results/run_{}.csv'.format(i) for i in range(len(slice_lst))], 
+					outputs=['../tmp/final_table.csv'],
+					cores=1,
+					memory='4g',
+					walltime= '01:00:00') << """
+		OutFileName="../tmp/final_table.csv"      			 # Fix the output name
+		i=0                                       			 # Reset a counter
+		for filename in ../tmp/results/*.csv; do 
+			if [ "$filename"  != "$OutFileName" ] ;      	 # Avoid recursion 
+			then 
+				if [[ $i -eq 0 ]] ; then 
+					head -1  "$filename" >   "$OutFileName"  # Copy header if it is the first file
+				fi
+				tail -n +2  "$filename" >>  "$OutFileName"   # Append from the 2nd line each file
+				i=$(( $i + 1 ))                              # Increase the counter
+			fi
+		done
+		"""
 
 
 
