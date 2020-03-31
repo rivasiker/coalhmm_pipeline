@@ -28,4 +28,32 @@ echo "    rho.min = 0.0001,\\" >> ../tmp/params.file
 echo "    rho.max = 1000\\" >> ../tmp/params.file
 echo "  )" >> ../tmp/params.file
 
+echo "alphabet=DNA" >> ../tmp/params.file
+echo "input.sequence.multiparts=yes" >> ../tmp/params.file
+
+echo "input.sequence.multiparts.reset=yes" >> ../tmp/params.file
+
+echo "input.sequence.format=Fasta" >> ../tmp/params.file
+
+echo "input.sequence.sites_to_use=all" >> ../tmp/params.file
+echo "input.sequence.max_gap_allowed=50%" >> ../tmp/params.file
+
+
+echo "//Emission probabilities options:" >> ../tmp/params.file
+echo "model=GTR(a=1.0, b=1.0, c=1.0, d=1.0, e=1.0, theta=0.5, theta1 = 0.5, theta2 = 0.5)" >> ../tmp/params.file
+echo "rate_distribution=Gamma(n=4, alpha=1.0)" >> ../tmp/params.file
+
+echo "echo "//Now perform analysis:" >> ../tmp/params.file
+analysis=estimate" >> ../tmp/params.file
+
+echo "optimize=yes" >> ../tmp/params.file
+echo "optimization.method=fullD" >> ../tmp/params.file
+echo "optimization.reparametrization=no" >> ../tmp/params.file
+echo "optimization.verbose=2" >> ../tmp/params.file
+echo "optimization.tolerance=0.0001" >> ../tmp/params.file
+echo "optimization.max_number_f_eval=1000000" >> ../tmp/params.file
+echo "optimization.max_number_iterations=2000" >> ../tmp/params.file
+echo "optimization.pre=yes" >> ../tmp/params.file
+echo "optimization.ignore_parameter=GTR.a,GTR.b,GTR.c,GTR.d,GTR.e,GTR.theta,GTR.theta1,GTR.theta2" >> ../tmp/params.file
+echo "optimization.final=no" >> ../tmp/params.file
 
