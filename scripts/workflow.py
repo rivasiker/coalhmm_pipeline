@@ -169,7 +169,7 @@ if os.path.isfile('../tmp/filtered.maf'):
 			# Collect results from each of the runs and combine them with the coordinates
 			gwf.target('collect_run_{}'.format(run), 
 					   inputs=['../tmp/info_tables/run_{}.csv'.format(run), '../tmp/outputs/run_{}/posteriors'.format(run)], 
-					   outputs=['../tmp/results/run_{}.csv'.format(run)],
+					   outputs=['../tmp/results/run_{}.HDF'.format(run)],
 					   cores=1,
 					   memory='4g',
 					   walltime= '01:00:00') << """
@@ -178,23 +178,12 @@ if os.path.isfile('../tmp/filtered.maf'):
 
 
 		gwf.target('final_table', 
-					inputs=['../tmp/results/run_{}.csv'.format(i) for i in range(len(slice_lst))], 
-					outputs=['../tmp/final_table.csv'],
+					inputs=['../tmp/results/run_{}.HDF'.format(i) for i in range(len(slice_lst))], 
+					outputs=['../results/final_table.HDF'],
 					cores=1,
 					memory='4g',
-					walltime= '01:00:00') << """
-		OutFileName="../tmp/final_table.csv"      			 # Fix the output name
-		i=0                                       			 # Reset a counter
-		for filename in ../tmp/results/*.csv; do 
-			if [ "$filename"  != "$OutFileName" ] ;      	 # Avoid recursion 
-			then 
-				if [[ $i -eq 0 ]] ; then 
-					head -1  "$filename" >   "$OutFileName"  # Copy header if it is the first file
-				fi
-				tail -n +2  "$filename" >>  "$OutFileName"   # Append from the 2nd line each file
-				i=$(( $i + 1 ))                              # Increase the counter
-			fi
-		done
+					walltime= '03:00:00') << """
+		python create_big_table.py
 		"""
 
 
