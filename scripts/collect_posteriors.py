@@ -66,7 +66,7 @@ for n in range(max(info_table['file'])+1):
                     start += 1
 
 
-pd.concat([pd.DataFrame.from_dict(pos).reindex(sorted(list(pos.keys())), axis=1),
+pd.concat([pd.DataFrame.from_dict(pos, dtype='int64').reindex(sorted(list(pos.keys())), axis=1).fillna(-1),
           pd.DataFrame.from_dict(chrom).reindex(sorted(list(chrom.keys())), axis=1),
           posteriors.reset_index(drop=True).drop(['Chunk'], axis=1)], 
           axis = 1).to_hdf('../tmp/results/run_{}.HDF'.format(run), 
