@@ -1,3 +1,8 @@
+# This script generates an HDF5 file for a certain run by combining the coordinates from the info table
+# and the posterior probabilities as outputted from coalHMM. Moreover, it takes into account that coalHMM
+# gets rid of sites if more than half of the sequences are gaps. The ouputted HDF5 file contains -1 instead
+# NaN, because HDF5 files cannot save missing values in integer columns. 
+
 import pandas as pd
 import sys
 
