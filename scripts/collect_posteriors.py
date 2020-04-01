@@ -15,7 +15,7 @@ chrom = {}
 # Add species as keys to the dictionaries
 for species in list(set(info_table['species'])):
     pos[species] = []
-    chrom[species+'.chr'] = []
+    chrom['chr.'+species] = []
     
 # For each individual fasta file in the run
 for n in range(max(info_table['file'])+1):
@@ -50,14 +50,14 @@ for n in range(max(info_table['file'])+1):
                     # Add the coordinate
                     pos[species].append(start)
                     # Add the chromosome
-                    chrom[species+'.chr'].append(chromosome)
+                    chrom['chr.'+species].append(chromosome)
                     # Update coordinates
                     start += 1
                 # If the site is a gap
                 else:
                     # Add None to both dictionaries
                     pos[species].append(None)
-                    chrom[species+'.chr'].append(None)
+                    chrom['chr.'+species].append(None)
             # If less of 50% of the rows are non-gaps
             elif a[i] == '0':
                 # If the site is not a gap
@@ -65,8 +65,13 @@ for n in range(max(info_table['file'])+1):
                     # Update the coordinate 
                     start += 1
 
-# Save the concatenated csv file
-pd.concat([pd.DataFrame.from_dict(pos, dtype='int64'),
-           pd.DataFrame.from_dict(chrom),
-           posteriors.reset_index(drop=True).drop(['Chunk'], axis=1)], 
-          axis = 1).to_csv('../tmp/results/run_{}.csv'.format(run), index = False)
+
+pd.concat([pd.DataFrame.from_dict(pos).reindex(sorted(list(pos.keys())), axis=1),
+          pd.DataFrame.from_dict(chrom).reindex(sorted(list(chrom.keys())), axis=1),
+          posteriors.reset_index(drop=True).drop(['Chunk'], axis=1)], 
+          axis = 1).to_hdf('../tmp/results/run_{}.HDF'.format(run), 
+                           key='run_{}'.format(run), 
+                           mode='w',
+                           complevel=9,
+                           format='table',
+                           data_columns=['Homo_sapiens'])
