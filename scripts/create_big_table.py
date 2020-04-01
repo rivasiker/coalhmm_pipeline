@@ -1,3 +1,6 @@
+# This script collects all individual HDF5 tables and appends them to a bigger HDF5 file
+# whose key is the species.chr that the maffiltering is based on. 
+
 import pandas as pd
 import sys
 import os
